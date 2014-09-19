@@ -1,6 +1,7 @@
 from tornado.platform.asyncio import AsyncIOMainLoop
 from tornado.web import RequestHandler, Application, url
 from tornado.options import define, options
+from io import BytesIO
 
 import pymongo
 import tornado.auth
@@ -14,7 +15,6 @@ import json
 import uuid
 import logging
 import time
-import io
 
 from exceptions import MessageError, NotAuthenticatedError
 import messages
@@ -208,7 +208,7 @@ class TCPServer(asyncio.Protocol):
 
     def connection_made(self, transport):
         self._heartbeat_handle = None
-        self._buf = io.BytesIO()
+        self._buf = BytesIO()
 
         self.idle_wait = 180
         self.read_wait = 30
