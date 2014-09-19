@@ -1,0 +1,6 @@
+http = "0.0.0.0:8888"
+tcp = "0.0.0.0:8889"
+
+[properties]
+twitter_key = ""
+twitter_secret = ""
