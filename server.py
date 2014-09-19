@@ -208,7 +208,7 @@ class TCPServer(asyncio.Protocol):
 
     def connection_made(self, transport):
         self._heartbeat_handle = None
-        self._buf = io.BytesIO(128)
+        self._buf = io.BytesIO()
 
         self.idle_wait = 180
         self.read_wait = 30
@@ -238,7 +238,7 @@ class TCPServer(asyncio.Protocol):
         for ch in data:
             if ch == b'\n':
                 self.parse_line(self._buf.getvalue())
-                self._buf = BytesIO(128)
+                self._buf = BytesIO()
             else:
                 self._buf.write(ch)
 
