@@ -6,6 +6,7 @@ import pymongo
 import tornado.auth
 import tornado.gen
 import tornado.options
+import tornado.websocket
 import toml
 
 import asyncio
@@ -13,6 +14,7 @@ import json
 import uuid
 import logging
 import time
+import io
 
 from exceptions import MessageError, NotAuthenticatedError
 import messages
@@ -109,6 +111,16 @@ class Properties:
         return getattr(self, thing, None)
 
 
+class RobustWebSocket(tornado.websocket.WebSocketHandler):
+    def open(self):
+        pass
+
+    def on_message(self, data):
+        pass
+
+    def on_close(self):
+        pass
+
 class TwitterLoginHandler(RequestHandler,
                           tornado.auth.TwitterMixin):
     @tornado.gen.coroutine
@@ -196,6 +208,7 @@ class TCPServer(asyncio.Protocol):
 
     def connection_made(self, transport):
         self._heartbeat_handle = None
+        self._buf = io.BytesIO(128)
 
         self.idle_wait = 180
         self.read_wait = 30
@@ -222,6 +235,14 @@ class TCPServer(asyncio.Protocol):
         self.logger.info(self._format_log("Connection lost!"))
 
     def data_received(self, data):
+        for ch in data:
+            if ch == b'\n':
+                self.parse_line(self._buf.getvalue())
+                self._buf = BytesIO(128)
+            else:
+                self._buf.write(ch)
+
+    def parse_line(self, data):
         self.start_timer()
         self.update_heartbeat_future(self.transport)
 
