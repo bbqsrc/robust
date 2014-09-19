@@ -235,12 +235,14 @@ class TCPServer(asyncio.Protocol):
         self.logger.info(self._format_log("Connection lost!"))
 
     def data_received(self, data):
-        for ch in data:
-            if ch == b'\n':
-                self.parse_line(self._buf.getvalue())
-                self._buf = BytesIO()
-            else:
-                self._buf.write(ch)
+        i = data.find(b'\n')
+        while i > -1:
+            self._buf.write(data[:i])
+            self.parse_line(self._buf.getvalue())
+            self._buf = BytesIO()
+            data = data[i+1:]
+            i = data.find(b'\n')
+        self._buf.write(data)
 
     def parse_line(self, data):
         self.start_timer()
