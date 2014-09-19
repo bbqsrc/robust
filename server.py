@@ -20,6 +20,9 @@ from exceptions import MessageError, NotAuthenticatedError
 import messages
 import db
 
+ARROW_LEFT = "\u2190"
+ARROW_RIGHT = "\u2192"
+
 define('http', default='127.0.0.1:8888', help='HTTP host:port')
 define('tcp', default='127.0.0.1:8889', help='TCP host:port')
 define('mongo', default='127.0.0.1:27017', help='MongoDB host:port')
@@ -248,7 +251,7 @@ class TCPServer(asyncio.Protocol):
         self.start_timer()
         self.update_heartbeat_future(self.transport)
 
-        self.logger.debug(self._format_log("<< %r" % data))
+        self.logger.debug(self._format_log("%s %r" % (ARROW_LEFT, data)))
         try:
             # TODO see if yield can be used here
             self.on_json(json.loads(data.decode('utf-8')))
@@ -265,7 +268,7 @@ class TCPServer(asyncio.Protocol):
 
     def write_json(self, data):
         out = json.dumps(data)
-        self.logger.debug(self._format_log(">> %s" % out))
+        self.logger.debug(self._format_log("%s %s" % (ARROW_RIGHT, out)))
         self.transport.write(out.encode('utf-8') + b'\n')
 
     def on_json(self, json_dict):
