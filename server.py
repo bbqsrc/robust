@@ -20,8 +20,8 @@ from exceptions import MessageError, NotAuthenticatedError
 import messages
 import db
 
-ARROW_LEFT = "\u2190"
-ARROW_RIGHT = "\u2192"
+ARROW_LEFT = "<-"
+ARROW_RIGHT = "->"
 
 define('http', default='127.0.0.1:8888', help='HTTP host:port')
 define('tcp', default='127.0.0.1:8889', help='TCP host:port')
