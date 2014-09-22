@@ -29,15 +29,22 @@ define('mongo', default='127.0.0.1:27017', help='MongoDB host:port')
 define('config', help='Configuration file. (toml format)')
 
 class Session:
-    def __init__(self, properties, transport, logger, db):
+    def __init__(self, properties, transport, logger, msgdb):
         self._properties = properties
         self._transport = transport
         self._logger = logger
-        self._db = db
+        self._msgdb = msgdb
+
+        host, port = options.mongo.split(':')
+        self._db = pymongo.MongoClient(host, int(port))
 
     @property
     def db(self):
         return self._db
+
+    @property
+    def msgdb(self):
+        return self._msgdb
 
     @property
     def properties(self):

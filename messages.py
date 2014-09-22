@@ -82,8 +82,8 @@ class TwitterAuth:
         r = requests.get(url="https://api.twitter.com/1.1/account/verify_credentials.json",
                 auth=oauth)
 
-        self.logger.debug('oauth: %s' % r.status_code)
-        return r.status_code == 200
+        self.logger.debug('oauth: %s' % type(r.body))
+        return r.body if r.status_code == 200 else None
 
 
 class MessageHandler:
@@ -123,7 +123,7 @@ class MessageHandler:
             "type": "message"
         }
 
-        self.session.db.insert(o)
+        self.session.msgdb.insert(o)
 
         # For great JSON.
         o["original_body"] = original_body
@@ -176,7 +176,7 @@ class SocketMessageHandler:
         if target is None:
             raise MessageError("A valid target is required.")
 
-        obj['messages'] = self.session.db.backlog(target, count,
+        obj['messages'] = self.session.msgdb.backlog(target, count,
                 from_date, to_date, from_)
 
         return obj
