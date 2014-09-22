@@ -8,6 +8,7 @@ import time
 
 from dates import utcnow_millis
 from exceptions import MessageError, NotAuthenticatedError
+from entities import User
 
 class TwitterAuth:
     def __init__(self, session):
@@ -45,6 +46,12 @@ class TwitterAuth:
 
         return self._oauth_challenge(key, secret)
 
+    def get_user(self, user_id):
+        try:
+            return User.from_twitter(self.session.db.users, user_id)
+        except ValueError:
+            return User.create_from_twitter(self.session.db.users, user_id)
+
     def authenticate(self, data):
         '''Returns message either with success or challenge.'''
         o = {"type": "auth", "mode": "twitter"}
@@ -53,13 +60,10 @@ class TwitterAuth:
             raise MessageError("Session already authenticated.")
 
         if self.test_auth_data(data):
-            self.session.set('user', {
-                "id": 42, #TODO stub
-                "name": data['screen_name']
-            })
-            self.logger.info("authenticated with key %s." % data['key'])
+            self.session.set('user', self.get_user(data['id_str']))
+            self.logger.info("authenticated with handle '%s'." % self.session.get('user')['handle'])
             o['success'] = True
-            o['data'] = data
+            o['data'] = data['access_token']
         else:
             o['success'] = False
             o['challenge'] = self.generate_challenge()

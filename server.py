@@ -141,7 +141,7 @@ class TwitterLoginHandler(RequestHandler,
 
             try:
                 user = yield self.get_authenticated_user()
-                properties.futures[robust_token].set_result(user['access_token'])
+                properties.futures[robust_token].set_result(user)
 
                 self.finish()
                 return
