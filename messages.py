@@ -59,7 +59,7 @@ class TwitterAuth:
         if self.session.is_authenticated():
             raise MessageError("Session already authenticated.")
 
-        access_token = data['access_token']
+        access_token = data.get('access_token', None)
 
         if self.test_auth_data(access_token):
             self.session.set('user', self.get_user(data['id_str']))
