@@ -219,8 +219,7 @@ class SocketMessageHandler:
         if getattr(self, 'twitter_auth', None) is None:
             self.twitter_auth = TwitterAuth(self.session)
 
-        data = obj.get('data', {})
-        return self.twitter_auth.authenticate(data)
+        return self.twitter_auth.authenticate(obj)
 
 
 def create_error(subtype, err):
