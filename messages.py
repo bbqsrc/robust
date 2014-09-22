@@ -59,11 +59,13 @@ class TwitterAuth:
         if self.session.is_authenticated():
             raise MessageError("Session already authenticated.")
 
-        if self.test_auth_data(data):
+        access_token = data['access_token']
+
+        if self.test_auth_data(access_token):
             self.session.set('user', self.get_user(data['id_str']))
             self.logger.info("authenticated with handle '%s'." % self.session.get('user')['handle'])
             o['success'] = True
-            o['data'] = data['access_token']
+            o['data'] = access_token
         else:
             o['success'] = False
             o['challenge'] = self.generate_challenge()
