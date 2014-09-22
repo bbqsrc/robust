@@ -1,12 +1,12 @@
 import uuid
 
 class User:
-    @property
-    def required(self):
+    @classmethod
+    def required(cls):
         return ['name', 'handle', 'timezone']
 
-    @property
-    def defaults(self):
+    @classmethod
+    def defaults(cls):
         return {
             "location": "",
             "bio": "",
@@ -18,12 +18,12 @@ class User:
         }
 
     def __getitem__(self, key):
-        if key in self.required or key in self.defaults:
+        if key in self.required() or key in self.defaults():
             return self._data[key]
         raise KeyError
 
     def __setitem__(self, key, value):
-        if key in self.required or key in self.defaults:
+        if key in self.required() or key in self.defaults():
             self._data[key] = value
             # SAVE HERE
             return value
@@ -34,13 +34,13 @@ class User:
 
     @classmethod
     def create(cls, collection, obj):
-        for k in self.required:
+        for k in cls.required():
             if obj.get(k, None) is None:
                 raise ValueError(k)
 
-        o = self.defaults
+        o = cls.defaults()
 
-        for k in defaults.keys():
+        for k in cls.defaults().keys():
             if k in obj:
                 o[k] = obj[k]
 
