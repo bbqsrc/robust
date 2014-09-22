@@ -1,4 +1,5 @@
 import uuid
+import itertools
 
 class User:
     @classmethod
@@ -18,12 +19,12 @@ class User:
         }
 
     def __getitem__(self, key):
-        if key in self.required() or key in self.defaults():
+        if key in self.defaults() or key in self.required():
             return self._data[key]
         raise KeyError
 
     def __setitem__(self, key, value):
-        if key in self.required() or key in self.defaults():
+        if key in self.defaults() or key in self.required():
             self._data[key] = value
             # SAVE HERE
             return value
@@ -40,7 +41,7 @@ class User:
 
         o = cls.defaults()
 
-        for k in cls.defaults().keys():
+        for k in itertools.chain(cls.defaults(), cls.required()):
             if k in obj:
                 o[k] = obj[k]
 
