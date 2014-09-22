@@ -59,23 +59,19 @@ class TwitterAuth:
         if self.session.is_authenticated():
             raise MessageError("Session already authenticated.")
 
-        challenge = data.get('challenge', None)
+        access_token = data.get('challenge', None)
 
-        if challenge is None:
-            # Not a login attempt; a test of a Twitter response
-            access_token = data.get('access_token', None)
-            if access_token is not None:
-                data = self.test_auth_data(access_token)
-        else:
-            # Login attempt with challenge obj
-            data = self.test_auth_data(challenge)
+        if access_token is None:
             access_token = data.get('access_token', None)
 
-        if access_token is not None:
+        data = self.test_auth_data(access_token)
+
+        if data is not None:
             self.session.set('user', self.get_user(data))
             self.logger.info("authenticated with handle '%s'." % self.session.get('user')['handle'])
             o['success'] = True
-            o['data'] = access_token
+            o['data'] = {"key": access_token['key'],
+                         "secret": access_token['secret']}
         else:
             o['success'] = False
             o['challenge'] = self.generate_challenge()
@@ -91,7 +87,7 @@ class TwitterAuth:
         r = requests.get(url="https://api.twitter.com/1.1/account/verify_credentials.json",
                 auth=oauth)
 
-        self.logger.debug('oauth: %s %s %s' % (r.status_code, r.headers['content-type'], r.text))
+        self.logger.debug('oauth: %s' % r.status_code)
         return r.json() if r.status_code == 200 else None
 
 
