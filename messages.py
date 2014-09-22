@@ -69,7 +69,7 @@ class TwitterAuth:
         else:
             # Login attempt with challenge obj
             data = self.test_auth_data(challenge)
-            access_token = data['access_token']
+            access_token = data.get('access_token', None)
 
         if access_token is not None:
             self.session.set('user', self.get_user(data))
@@ -91,7 +91,7 @@ class TwitterAuth:
         r = requests.get(url="https://api.twitter.com/1.1/account/verify_credentials.json",
                 auth=oauth)
 
-        self.logger.debug('oauth: %s' % r.status_code)
+        self.logger.debug('oauth: %s %s %s' % (r.status_code, r.headers['content-type'], r.text))
         return r.json() if r.status_code == 200 else None
 
 
