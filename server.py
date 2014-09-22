@@ -36,7 +36,7 @@ class Session:
         self._msgdb = msgdb
 
         host, port = options.mongo.split(':')
-        self._db = pymongo.MongoClient(host, int(port))
+        self._db = pymongo.MongoClient(host, int(port)).robust
 
     @property
     def db(self):
