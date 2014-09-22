@@ -139,7 +139,7 @@ class MessageHandler:
         o['id'] = str(o['_id'])
         del o['_id']
 
-        self.session.broadcast(o)
+        self.session.transport.broadcast(o)
 
         return o
 
