@@ -1,14 +1,14 @@
 from tornado.concurrent import Future
-from requests_oauthlib import OAuth1Session, OAuth1
+from requests_oauthlib import OAuth1
 from bson.objectid import ObjectId
 
 import requests
 import uuid
-import time
 
 from dates import utcnow_millis
 from exceptions import MessageError, NotAuthenticatedError
 from entities import User
+
 
 class TwitterAuth:
     def __init__(self, session):
@@ -24,7 +24,7 @@ class TwitterAuth:
         return self.session.get('twitter_secret')
 
     def generate_challenge(self):
-        '''Returns authentication challenge message, with OAuth URL.'''
+        """Returns authentication challenge message, with OAuth URL."""
         nonce = uuid.uuid4().hex
 
         future = Future()
@@ -37,7 +37,7 @@ class TwitterAuth:
         }
 
     def test_auth_data(self, data):
-        '''Returns a boolean for whether key/secret verify successfully.'''
+        """Returns a boolean for whether key/secret verify successfully."""
         key = data.get('key', None)
         secret = data.get('secret', None)
 
@@ -50,7 +50,7 @@ class TwitterAuth:
             return User.create_from_twitter(self.session.db.users, user_obj)
 
     def authenticate(self, data=None):
-        '''Returns message either with success or challenge.'''
+        """Returns message either with success or challenge."""
         if data is None:
             data = {}
 
@@ -85,7 +85,7 @@ class TwitterAuth:
                        resource_owner_secret=secret)
 
         r = requests.get(url="https://api.twitter.com/1.1/account/verify_credentials.json",
-                auth=oauth)
+                         auth=oauth)
 
         self.logger.debug('oauth: %s' % r.status_code)
         return r.json() if r.status_code == 200 else None
@@ -144,6 +144,8 @@ class MessageHandler:
 class SocketMessageHandler:
     def __init__(self, session):
         self.session = session
+        self.message_handler = MessageHandler(self.session)
+        self.twitter_auth = TwitterAuth(self.session)
 
     def parse(self, obj):
         # TODO add message validation here
@@ -163,9 +165,6 @@ class SocketMessageHandler:
         return None
 
     def message(self, obj):
-        if getattr(self, 'message_handler', None) is None:
-            self.message_handler = MessageHandler(self.session)
-
         return self.message_handler.send(obj)
 
     def emote(self, obj):
@@ -182,7 +181,7 @@ class SocketMessageHandler:
             raise MessageError("A valid target is required.")
 
         obj['messages'] = self.session.msgdb.backlog(target, count,
-                from_date, to_date, from_)
+                                                     from_date, to_date, from_)
 
         return obj
 
@@ -212,9 +211,6 @@ class SocketMessageHandler:
         return method(obj)
 
     def auth_twitter(self, obj):
-        if getattr(self, 'twitter_auth', None) is None:
-            self.twitter_auth = TwitterAuth(self.session)
-
         return self.twitter_auth.authenticate(obj)
 
 

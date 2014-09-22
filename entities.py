@@ -1,6 +1,7 @@
 import uuid
 import itertools
 
+
 class User:
     @classmethod
     def required(cls):

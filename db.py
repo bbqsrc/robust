@@ -1,9 +1,9 @@
 import pymongo
 
 from collections import deque
-from datetime import datetime, timedelta
 
 from dates import utcnow_millis
+
 
 class MessagesDB:
     def __init__(self, mongo_host='localhost', mongo_port=27017):
@@ -12,7 +12,7 @@ class MessagesDB:
         self.messages = self.db.messages
 
     def insert(self, message):
-        message = message.copy() # Don't mangle original dict
+        message = message.copy()  # Don't mangle original dict
 
         # TODO better validation
         if not message.get('ts', None):
@@ -47,8 +47,8 @@ class MessagesDB:
             q['from'] = from_
 
         # TODO indexing
-        cursor = self.messages.find(q)\
-                    .sort("ts", pymongo.DESCENDING).limit(count)
+        cursor = self.messages.find(q) \
+            .sort("ts", pymongo.DESCENDING).limit(count)
 
         o = deque()
         for record in cursor:

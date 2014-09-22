@@ -1,3 +1,7 @@
-class NotAuthenticatedError(Exception): pass
-class MessageError(Exception): pass
+class NotAuthenticatedError(Exception):
+    pass
+
+
+class MessageError(Exception):
+    pass
 
