@@ -70,7 +70,6 @@ class TwitterAuth:
             # Login attempt with challenge obj
             data = self.test_auth_data(challenge)
             access_token = data['access_token']
-        else:
 
         if access_token is not None:
             self.session.set('user', self.get_user(data['id_str']))
