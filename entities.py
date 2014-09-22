@@ -20,7 +20,7 @@ class User:
         }
 
     def __getitem__(self, key):
-        if key in self.defaults() or key in self.required():
+        if key in self.defaults() or key in self.required() or key == "_id":
             return self._data[key]
         raise KeyError
 

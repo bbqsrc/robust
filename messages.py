@@ -38,6 +38,9 @@ class TwitterAuth:
 
     def test_auth_data(self, data):
         """Returns a boolean for whether key/secret verify successfully."""
+        if data is None:
+            return None
+
         key = data.get('key', None)
         secret = data.get('secret', None)
 
