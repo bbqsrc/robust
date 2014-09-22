@@ -299,7 +299,7 @@ class TCPServer(asyncio.Protocol):
 
     def broadcast(self, message):
         for id_, session in sessions.items():
-            if session is self:
+            if id_ == self.id:
                 continue
             self.logger.debug("Broadcasting msg to %s" % id_)
             session.transport.write_json(message)
