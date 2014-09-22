@@ -34,6 +34,10 @@ class User:
     def __init__(self, record):
         self._data = record
 
+    @property
+    def record(self):
+        return self._data.copy()
+
     @classmethod
     def create(cls, collection, obj):
         for k in cls.required():

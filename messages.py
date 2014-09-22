@@ -119,8 +119,9 @@ class MessageHandler:
         o = {
             "_id": ObjectId(),
             "from": {
-                "name": user['name'],
-                "id": user['id']
+                "id": user['_id'].hex,
+                "handle": user['handle'],
+                "name": user['name']
             },
             "ts": utcnow_millis(),
             "target": target,
@@ -134,6 +135,8 @@ class MessageHandler:
         o["original_body"] = original_body
         o['id'] = str(o['_id'])
         del o['_id']
+
+        self.session.broadcast(o)
 
         return o
 

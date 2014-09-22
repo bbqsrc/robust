@@ -28,6 +28,7 @@ define('tcp', default='127.0.0.1:8889', help='TCP host:port')
 define('mongo', default='127.0.0.1:27017', help='MongoDB host:port')
 define('config', help='Configuration file. (toml format)')
 
+
 class Session:
     def __init__(self, properties, transport, logger, msgdb):
         self._properties = properties
@@ -131,6 +132,7 @@ class RobustWebSocket(tornado.websocket.WebSocketHandler):
     def on_close(self):
         pass
 
+
 class TwitterLoginHandler(RequestHandler,
                           tornado.auth.TwitterMixin):
     @tornado.gen.coroutine
@@ -181,10 +183,11 @@ class TwitterLoginHandler(RequestHandler,
             properties.auth_tokens[req_token['key']] = self._token
 
         super()._on_request_token(authorize_url, callback_uri, callback,
-                          response)
+                                  response)
 
 
 sessions = {}
+
 
 class TCPServer(asyncio.Protocol):
     def _heartbeat_failed(self, transport):
@@ -243,6 +246,7 @@ class TCPServer(asyncio.Protocol):
         if self._heartbeat_handle is not None:
             self._heartbeat_handle.cancel()
         self.logger.info(self._format_log("Connection lost!"))
+        del sessions[self.id]
 
     def data_received(self, data):
         i = data.find(b'\n')
@@ -293,6 +297,12 @@ class TCPServer(asyncio.Protocol):
                 "An internal server error has occurred."))
             raise e
 
+    def broadcast(self, message):
+        for id_, session in sessions.items():
+            if session is self:
+                continue
+            self.logger.debug("Broadcasting msg to %s" % id_)
+            session.transport.write_json(message)
 
 def make_app():
     return Application([
