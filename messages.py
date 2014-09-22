@@ -41,28 +41,38 @@ class TwitterAuth:
         key = data.get('key', None)
         secret = data.get('secret', None)
 
-        if key is None or secret is None:
-            return False
-
         return self._oauth_challenge(key, secret)
 
-    def get_user(self, user_id):
+    def get_user(self, user_obj):
         try:
-            return User.from_twitter(self.session.db.users, user_id)
+            return User.from_twitter(self.session.db.users, user_obj['id_str'])
         except ValueError:
-            return User.create_from_twitter(self.session.db.users, user_id)
+            return User.create_from_twitter(self.session.db.users, user_obj)
 
-    def authenticate(self, data):
+    def authenticate(self, data=None):
         '''Returns message either with success or challenge.'''
+        if data is None:
+            data = {}
+
         o = {"type": "auth", "mode": "twitter"}
 
         if self.session.is_authenticated():
             raise MessageError("Session already authenticated.")
 
-        access_token = data.get('access_token', None)
+        challenge = data.get('challenge', None)
 
-        if access_token is not None and\
-                self.test_auth_data(access_token):
+        if challenge is None:
+            # Not a login attempt; a test of a Twitter response
+            access_token = data.get('access_token', None)
+            if access_token is not None:
+                data = self.test_auth_data(access_token)
+        else:
+            # Login attempt with challenge obj
+            data = self.test_auth_data(challenge)
+            access_token = data['access_token']
+        else:
+
+        if access_token is not None:
             self.session.set('user', self.get_user(data['id_str']))
             self.logger.info("authenticated with handle '%s'." % self.session.get('user')['handle'])
             o['success'] = True
@@ -82,8 +92,8 @@ class TwitterAuth:
         r = requests.get(url="https://api.twitter.com/1.1/account/verify_credentials.json",
                 auth=oauth)
 
-        self.logger.debug('oauth: %s' % type(r.body))
-        return r.body if r.status_code == 200 else None
+        self.logger.debug('oauth: %s' % r.status_code)
+        return r.json() if r.status_code == 200 else None
 
 
 class MessageHandler:
