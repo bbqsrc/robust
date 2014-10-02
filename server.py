@@ -38,6 +38,7 @@ class Session:
 
         host, port = options.mongo.split(':')
         self._db = pymongo.MongoClient(host, int(port)).robust
+        self._dict = {}
 
     @property
     def db(self):
@@ -70,10 +71,10 @@ class Session:
         return True
 
     def set(self, thing, value):
-        return setattr(self, thing, value)
+        return self._dict[thing] = value
 
     def get(self, thing):
-        data = getattr(self, thing, None)
+        data = self._dict.get(thing, None)
         if data is None:
             return self.properties.get(thing)
         return data
