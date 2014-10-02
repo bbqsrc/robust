@@ -182,6 +182,7 @@ class SocketMessageHandler:
 
     def part(self, obj):
         # TODO part a channel
+        pass
 
     def backlog(self, obj):
         from_date = obj.get('from_date', None)
