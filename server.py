@@ -291,7 +291,7 @@ class TCPServer(asyncio.Protocol):
         return time.time() * 1000 - t
 
     def write_json(self, data):
-        out = json.dumps(cls=JSONEncoder, data)
+        out = json.dumps(data, cls=JSONEncoder)
         self.logger.debug(self._format_log("%s %s" % (ARROW_RIGHT, out)))
         self.transport.write(out.encode('utf-8') + b'\n')
 
