@@ -194,6 +194,8 @@ class TwitterLoginHandler(RequestHandler,
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
+        if isinstance(o, uuid.UUID):
+            return o.hex
         if hasattr(o, '_to_json'):
             return o._to_json()
         return super().default(o)
