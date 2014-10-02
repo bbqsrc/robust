@@ -1,6 +1,6 @@
 import uuid
 import itertools
-
+import json
 
 class User:
     @classmethod
@@ -20,6 +20,15 @@ class User:
             "channels": []
         }
 
+    def _to_json(self):
+        o = {}
+
+        for k in itertools.chain(User.defaults(), User.required()):
+            if self.get(k):
+                o[k] = self[k]
+
+        return o
+
     def __getitem__(self, key):
         if key in self.defaults() or key in self.required() or key == "_id":
             return self._data[key]
@@ -31,6 +40,13 @@ class User:
             # SAVE HERE
             return value
         raise KeyError
+
+    def get(self, key, fallback=None):
+        try:
+            return self[key]
+        except KeyError:
+            return fallback
+
 
     def __init__(self, record):
         self._data = record

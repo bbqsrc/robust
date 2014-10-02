@@ -192,6 +192,13 @@ class TwitterLoginHandler(RequestHandler,
                                   response)
 
 
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if hasattr(o, '_to_json'):
+            return o._to_json()
+        return super().default(o)
+
+
 sessions = {}
 
 
@@ -284,7 +291,7 @@ class TCPServer(asyncio.Protocol):
         return time.time() * 1000 - t
 
     def write_json(self, data):
-        out = json.dumps(data)
+        out = json.dumps(cls=JSONEncoder, data)
         self.logger.debug(self._format_log("%s %s" % (ARROW_RIGHT, out)))
         self.transport.write(out.encode('utf-8') + b'\n')
 
