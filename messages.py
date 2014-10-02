@@ -230,7 +230,7 @@ class SocketMessageHandler:
 
 
     def auth_twitter(self, obj):
-        o = self.twitter_auth.authenticate(obj)
+        return self.twitter_auth.authenticate(obj)
 
 
 def create_error(subtype, err):
