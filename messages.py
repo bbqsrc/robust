@@ -224,7 +224,7 @@ class SocketMessageHandler:
             raise MessageError("No handler found for mode '%s'." % mode)
 
         o = method(obj)
-        if is not None:
+        if o is not None:
             o['user'] = self.session.user
         return o
 
