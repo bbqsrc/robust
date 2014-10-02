@@ -71,7 +71,8 @@ class Session:
         return True
 
     def set(self, thing, value):
-        return self._dict[thing] = value
+        self._dict[thing] = value
+        return value
 
     def get(self, thing):
         data = self._dict.get(thing, None)
