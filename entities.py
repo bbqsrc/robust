@@ -16,7 +16,8 @@ class User:
             "twitter_uid": None,
             "facebook_uid": None,
             "github_uid": None,
-            "is_server_admin": False
+            "is_server_admin": False,
+            "channels": []
         }
 
     def __getitem__(self, key):

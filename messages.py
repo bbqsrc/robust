@@ -176,6 +176,13 @@ class SocketMessageHandler:
     def emote(self, obj):
         return NotImplemented
 
+    def join(self, obj):
+        # TODO join a channel
+        pass
+
+    def part(self, obj):
+        # TODO part a channel
+
     def backlog(self, obj):
         from_date = obj.get('from_date', None)
         to_date = obj.get('to_date', None)
@@ -203,6 +210,7 @@ class SocketMessageHandler:
             "value": self.session.properties.options.get(name)
         }
 
+
     def auth(self, obj):
         mode = obj.get('mode', None)
 
@@ -214,10 +222,14 @@ class SocketMessageHandler:
         if method is None:
             raise MessageError("No handler found for mode '%s'." % mode)
 
-        return method(obj)
+        o = method(obj)
+        if is not None:
+            o['user'] = self.session.user
+        return o
+
 
     def auth_twitter(self, obj):
-        return self.twitter_auth.authenticate(obj)
+        o = self.twitter_auth.authenticate(obj)
 
 
 def create_error(subtype, err):

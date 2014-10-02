@@ -62,6 +62,10 @@ class Session:
     def is_authenticated(self):
         return self.get('user') is not None
 
+    @property
+    def user(self):
+        return self.get('user')
+
     def can_send(self, target):
         return True
 
