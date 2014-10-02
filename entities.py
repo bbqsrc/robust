@@ -21,13 +21,7 @@ class User:
         }
 
     def _to_json(self):
-        o = {}
-
-        for k in itertools.chain(User.defaults(), User.required()):
-            if self.get(k):
-                o[k] = self[k]
-
-        return o
+        return self.record
 
     def __getitem__(self, key):
         if key in self.defaults() or key in self.required() or key == "_id":
