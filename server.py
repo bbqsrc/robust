@@ -205,6 +205,8 @@ sessions = {}
 
 
 class TCPServer(asyncio.Protocol):
+    FRAME_SIZE = 1024
+
     def _heartbeat_failed(self, transport):
         self.logger.warn(
                 self._format_log("No response in %s seconds, closing." % self.read_wait))
@@ -292,10 +294,16 @@ class TCPServer(asyncio.Protocol):
         self._timer = None
         return time.time() * 1000 - t
 
+    def write_chunks(self, message):
+        while len(message) > 0:
+            chunk = message[:self.FRAME_SIZE]
+            message = message[self.FRAME_SIZE:]
+            self.transport.write(chunk)
+
     def write_json(self, data):
         out = json.dumps(data, cls=JSONEncoder)
         self.logger.debug(self._format_log("%s %s" % (ARROW_RIGHT, out)))
-        self.transport.write(out.encode('utf-8') + b'\n')
+        self.write_chunks(out.encode('utf-8') + b'\n')
 
     def on_json(self, json_dict):
         try:
