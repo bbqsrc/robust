@@ -237,6 +237,8 @@ class TCPServer(asyncio.Protocol):
             self._format_log(type_.upper()), ms))
 
     def connection_made(self, transport):
+        transport.set_write_buffer_limits(self.FRAME_SIZE, self.FRAME_SIZE // 8)
+
         self._heartbeat_handle = None
         self._buf = BytesIO()
 
@@ -294,16 +296,10 @@ class TCPServer(asyncio.Protocol):
         self._timer = None
         return time.time() * 1000 - t
 
-    def write_chunks(self, message):
-        while len(message) > 0:
-            chunk = message[:self.FRAME_SIZE]
-            message = message[self.FRAME_SIZE:]
-            self.transport.write(chunk)
-
     def write_json(self, data):
         out = json.dumps(data, cls=JSONEncoder)
         self.logger.debug(self._format_log("%s %s" % (ARROW_RIGHT, out)))
-        self.write_chunks(out.encode('utf-8') + b'\n')
+        self.transport.write(out.encode('utf-8') + b'\n')
 
     def on_json(self, json_dict):
         try:
