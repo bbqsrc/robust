@@ -70,7 +70,7 @@ class User:
 
         collection.insert(o)
 
-        return cls(o)
+        return cls(collection, o)
 
     @classmethod
     def from_plain(cls, collection, handle):
