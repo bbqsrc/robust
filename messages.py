@@ -241,10 +241,9 @@ class SocketMessageHandler:
     def auth_twitter(self, obj):
         return self.twitter_auth.authenticate(obj)
 
-    def auth_plain(self, obj) {
+    def auth_plain(self, obj):
         username = obj.get('username', None)
         # TODO plain auth
-    }
 
 
 def create_error(subtype, err):
