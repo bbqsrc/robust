@@ -70,8 +70,10 @@ class TwitterAuth:
         data = self.test_auth_data(access_token)
 
         if data is not None:
-            self.session.set('user', self.get_user(data))
-            self.logger.info("authenticated with handle '%s'." % self.session.get('user')['handle'])
+            user = self.get_user(data)
+            self.session.set('user', user)
+            self.logger.info("authenticated with handle '%s'." % user['handle'])
+            o['user'] = user
             o['success'] = True
             o['data'] = {"key": access_token['key'],
                          "secret": access_token['secret']}
