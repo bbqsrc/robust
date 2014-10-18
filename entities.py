@@ -3,6 +3,7 @@ import itertools
 import json
 
 class User:
+    # TODO: add 'email' as required
     @classmethod
     def required(cls):
         return ['name', 'handle', 'timezone']
@@ -42,8 +43,11 @@ class User:
             return fallback
 
 
-    def __init__(self, record):
+    def __init__(self, collection, record):
         self._data = record
+
+    def save(self):
+        self._collection.save(self._data)
 
     @property
     def record(self):
@@ -65,7 +69,16 @@ class User:
 
         collection.insert(o)
 
-        return o
+        return cls(o)
+
+    @classmethod
+    def from_plain(cls, collection, handle):
+        record = collection.find_one({"handle": handle})
+
+        if record is None:
+            raise ValueError
+
+        return cls(collection, record)
 
     @classmethod
     def from_twitter(cls, collection, user_id):
@@ -74,7 +87,7 @@ class User:
         if record is None:
             raise ValueError
 
-        return cls(record)
+        return cls(collection, record)
 
     @classmethod
     def create_from_twitter(cls, collection, user_obj):

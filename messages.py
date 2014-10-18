@@ -177,8 +177,15 @@ class SocketMessageHandler:
         return NotImplemented
 
     def join(self, obj):
-        # TODO join a channel
-        pass
+        # TODO accept a list instead of a string; multi join!
+        user = self.session.get('user')
+
+        user['channels'].append(obj['target'])
+        user.save()
+
+        o = obj.copy()
+        o['success'] = True
+        return o
 
     def part(self, obj):
         # TODO part a channel
@@ -188,7 +195,9 @@ class SocketMessageHandler:
         from_date = obj.get('from_date', None)
         to_date = obj.get('to_date', None)
         count = obj.get('count', None)
-        from_ = obj.get('from', None)
+        # TODO from should be user id based on session.
+        #from_ = obj.get('from', None)
+        from_ = None
         target = obj.get('target', None)
 
         if target is None:
@@ -231,6 +240,11 @@ class SocketMessageHandler:
 
     def auth_twitter(self, obj):
         return self.twitter_auth.authenticate(obj)
+
+    def auth_plain(self, obj) {
+        username = obj.get('username', None)
+        # TODO plain auth
+    }
 
 
 def create_error(subtype, err):
