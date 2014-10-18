@@ -45,6 +45,7 @@ class User:
 
     def __init__(self, collection, record):
         self._data = record
+        self._collection = collection
 
     def save(self):
         self._collection.save(self._data)
