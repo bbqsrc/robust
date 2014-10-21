@@ -260,8 +260,8 @@ class TCPServer(asyncio.Protocol):
 
         logger = logging.getLogger('socket')
         logger.info(self._format_log("Connection made!"))
-        logger.debug(self._format_log("Using cipher: %s" %\
-                "_".join(transport.get_extra_info('cipher'))))
+        logger.debug(self._format_log("Using cipher: %s_%s_%s" %\
+                transport.get_extra_info('cipher')))
         self.logger = logger
 
         sessions[self.id] = Session(properties, self, logger, db.MessagesDB())
