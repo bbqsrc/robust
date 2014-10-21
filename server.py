@@ -32,7 +32,10 @@ define('certfile', help="Certificate file.")
 define('keyfile', help="Key file.")
 
 def create_ssl_context(certfile, keyfile):
-    ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+    ctx.options |= ssl.OP_NO_SSLv2
+    ctx.options |= ssl.OP_NO_SSLv3
+    ctx.options |= ssl.OP_NO_TLSv1
     ctx.load_cert_chain(certfile, keyfile)
     return ctx
 
