@@ -15,6 +15,7 @@ import json
 import uuid
 import logging
 import time
+import ssl
 
 from exceptions import MessageError, NotAuthenticatedError
 import messages
@@ -27,7 +28,13 @@ define('http', default='127.0.0.1:8888', help='HTTP host:port')
 define('tcp', default='127.0.0.1:8889', help='TCP host:port')
 define('mongo', default='127.0.0.1:27017', help='MongoDB host:port')
 define('config', help='Configuration file. (toml format)')
+define('certfile', help="Certificate file.")
+define('keyfile', help="Key file.")
 
+def create_ssl_context(self, certfile, keyfile):
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    ctx.load_cert_chain(certfile, keyfile)
+    return ctx
 
 class Session:
     def __init__(self, properties, transport, logger, msgdb):
@@ -343,11 +350,9 @@ def main():
     with open(options.config) as f:
         config = toml.load(f)
 
-    if config.get('http', None):
-        options.http = config['http']
-
-    if config.get('tcp', None):
-        options.tcp = config['tcp']
+    for k in ['http', 'tcp', 'certfile', 'keyfile']:
+        if config.get(k, None):
+            setattr(options, k, config[k])
 
     AsyncIOMainLoop().install()
 
@@ -366,7 +371,8 @@ def main():
     app.listen(int(http_port), http_host, xheaders=True)
     logger.info("HTTP server listening on %s." % options.http)
 
-    coro = loop.create_server(TCPServer, tcp_host, int(tcp_port))
+    coro = loop.create_server(TCPServer, tcp_host, int(tcp_port),
+            ssl=create_ssl_context(options.certfile, options.keyfile))
     tcp_server = loop.run_until_complete(coro)
     logger.info("TCP server listening on %s." % options.tcp)
 
