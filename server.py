@@ -31,7 +31,7 @@ define('config', help='Configuration file. (toml format)')
 define('certfile', help="Certificate file.")
 define('keyfile', help="Key file.")
 
-def create_ssl_context(self, certfile, keyfile):
+def create_ssl_context(certfile, keyfile):
     ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     ctx.load_cert_chain(certfile, keyfile)
     return ctx
