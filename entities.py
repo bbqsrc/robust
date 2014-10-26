@@ -6,7 +6,7 @@ class User:
     @classmethod
     def public(self):
         return ['name', 'handle', 'timezone',
-                'bio', 'display_picture'
+                'bio', 'display_picture',
                 'location', 'is_server_admin']
 
     # TODO: add 'email' as required
