@@ -125,13 +125,15 @@ class User:
             "twitter_uid": user_id
         })
 
-    def assign_twitter_uid(self):
-        raise NotImplementedError
-
-    def from_id(self, collection, user_id):
+    @classmethod
+    def from_id(cls, collection, user_id):
         record = collection.find_one({"id": user_id})
 
         if record is None:
             raise ValueError
 
         return cls(collection, record, False)
+
+    def assign_twitter_uid(self):
+        raise NotImplementedError
+
