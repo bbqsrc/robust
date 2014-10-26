@@ -252,11 +252,14 @@ class SocketMessageHandler:
         if user_id is None:
             raise MessageError("No user id provided.")
 
-        return {
-            "type": "user",
-            "id": user_id,
-            "user": User.from_id(self.session.db.users, user_id)
-        }
+        try:
+            return {
+                "type": "user",
+                "id": user_id,
+                "user": User.from_id(self.session.db.users, user_id)
+            }
+        except ValueError as e:
+            raise MessageError("No user found for id '%s'." % user_id)
 
 
 def create_error(subtype, err):
