@@ -127,7 +127,7 @@ class User:
 
     @classmethod
     def from_id(cls, collection, user_id):
-        record = collection.find_one({"id": user_id})
+        record = collection.find_one({"_id": uuid.UUID(user_id)})
 
         if record is None:
             raise ValueError
