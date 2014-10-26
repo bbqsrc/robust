@@ -247,6 +247,17 @@ class SocketMessageHandler:
         username = obj.get('username', None)
         # TODO plain auth
 
+    def user(self, obj):
+        user_id = obj.get('id', None)
+        if user_id is None:
+            raise MessageError("No user id provided.")
+
+        return {
+            "type": "user",
+            "id": user_id,
+            "user": User.from_id(self.session.db.users, user_id)
+        }
+
 
 def create_error(subtype, err):
     return {

@@ -3,6 +3,12 @@ import itertools
 import json
 
 class User:
+    @classmethod
+    def public(self):
+        return ['name', 'handle', 'timezone',
+                'bio', 'display_picture'
+                'location', 'is_server_admin']
+
     # TODO: add 'email' as required
     @classmethod
     def required(cls):
@@ -43,15 +49,21 @@ class User:
             return fallback
 
 
-    def __init__(self, collection, record):
+    def __init__(self, collection, record, authorised=True):
         self._data = record
         self._collection = collection
+        self._authorised = authorised
 
     def save(self):
         self._collection.save(self._data)
 
     @property
     def record(self):
+        if not self._authorised:
+            o = {}
+            for p in self.public():
+                o[p] = self._data[p]
+            return o
         return self._data.copy()
 
     @classmethod
@@ -116,4 +128,10 @@ class User:
     def assign_twitter_uid(self):
         raise NotImplementedError
 
+    def from_id(self, collection, user_id):
+        record = collection.find_one({"id": user_id})
 
+        if record is None:
+            raise ValueError
+
+        return cls(collection, record, False)
