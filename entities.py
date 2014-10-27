@@ -5,8 +5,8 @@ import json
 class User:
     @classmethod
     def public(self):
-        return ['name', 'handle', 'timezone',
-                'bio', 'display_picture',
+        return ['name', 'handle', 'timezone', 'bio',
+                'display_picture', 'display_picture_large',
                 'location', 'is_server_admin']
 
     # TODO: add 'email' as required
@@ -20,6 +20,7 @@ class User:
             "location": "",
             "bio": "",
             "display_picture": None,
+            "display_picture_large": None,
             "twitter_uid": None,
             "facebook_uid": None,
             "github_uid": None,
