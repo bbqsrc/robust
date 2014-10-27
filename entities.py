@@ -113,8 +113,12 @@ class User:
         location = user_obj['location']
 
         img = None
+        img_large = None
+
         if not user_obj['default_profile_image']:
             img = user_obj['profile_image_url_https']
+        if img is not None:
+            img_large = img.replace("_normal", "")
 
         return cls.create(collection, {
             "name": name,
@@ -123,7 +127,8 @@ class User:
             "location": location,
             "timezone": timezone // 60,
             "twitter_uid": user_id,
-            "display_picture": img
+            "display_picture": img,
+            "display_picture_large": img_large
         })
 
     @classmethod
