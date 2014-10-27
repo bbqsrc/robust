@@ -122,7 +122,8 @@ class User:
             "bio": bio,
             "location": location,
             "timezone": timezone // 60,
-            "twitter_uid": user_id
+            "twitter_uid": user_id,
+            "display_picture": img
         })
 
     @classmethod
