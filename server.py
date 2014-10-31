@@ -140,13 +140,89 @@ class Properties:
 
 class RobustWebSocket(tornado.websocket.WebSocketHandler):
     def open(self):
-        pass
+        self.id = uuid.uuid4().hex
+        self._buf = BytesIO()
+        
+        logger = logging.getLogger('websocket')
+        logger.info(self._format_log("Connection made!"))
+        self.logger = logger
+        
+        sessions[self.id] = Session(properties, self, logger, db.MessagesDB())
+        self.session = sessions[self.id]
 
+        self.message_handler = messages.SocketMessageHandler(self.session)
+
+        self.write_json(messages.create_welcome("Welcome to Robust alpha.\n\n" +
+                                                "This will be excellent."))
+
+
+    def start_timer(self):
+        self._timer = time.time() * 1000
+
+    def stop_timer(self):
+        t = self._timer
+        self._timer = None
+        return time.time() * 1000 - t
+
+    def log_request(self, type_, ms):
+        self.logger.info("%s %.2fms" % (
+            self._format_log(type_.upper()), ms))
+    
     def on_message(self, data):
-        pass
+        data = data.encode('utf-8')
+
+        i = data.find(b'\n')
+        while i > -1:
+            self._buf.write(data[:i])
+            self.parse_line(self._buf.getvalue())
+            self._buf = BytesIO()
+            data = data[i+1:]
+            i = data.find(b'\n')
+        self._buf.write(data)
+    
+    def on_json(self, json_dict):
+        try:
+            msg = self.message_handler.parse(json_dict)
+            if msg is not None:
+                self.write_json(msg)
+            self.log_request(json_dict['type'], self.stop_timer())
+        except MessageError as e:
+            self.write_json(messages.create_error('message', e))
+        except NotAuthenticatedError as e:
+            self.write_json(messages.create_error('authentication', e))
+        except Exception as e:
+            self.write_json(messages.create_error('internal',
+                "An internal server error has occurred."))
+            raise e
 
     def on_close(self):
-        pass
+        self.logger.info(self._format_log("Connection lost!"))
+        del sessions[self.id]
+
+    def write_json(self, data):
+        out = json.dumps(data, cls=JSONEncoder, separators=(',', ':'))
+        self.logger.debug(self._format_log("%s %s" % (ARROW_RIGHT, out)))
+        self.write_message(out.encode('utf-8') + b'\n')
+
+    def broadcast(self, message):
+        for id_, session in sessions.items():
+            if id_ == self.id:
+                continue
+            self.logger.debug("Broadcasting msg to %s" % id_)
+            session.transport.write_json(message)
+
+    def parse_line(self, data):
+        self.start_timer()
+        self.logger.debug(self._format_log("%s %r" % (ARROW_LEFT, data)))
+        try:
+            # TODO see if yield can be used here
+            self.on_json(json.loads(data.decode('utf-8')))
+        except ValueError as e:
+            self.write_json(messages.create_error("parser", e))
+    
+    def _format_log(self, words):
+        #peername = "%s:%s" % self.transport.get_extra_info('peername')
+        return "%s (%s)" % (words, "STUB")
 
 
 class TwitterLoginHandler(RequestHandler,
@@ -337,7 +413,8 @@ class TCPServer(asyncio.Protocol):
 
 def make_app():
     return Application([
-            url(r'/auth/twitter', TwitterLoginHandler)
+            url(r'/auth/twitter', TwitterLoginHandler),
+            url(r'/ws', RobustWebSocket)
         ],
         twitter_consumer_key=properties.twitter_key,
         twitter_consumer_secret=properties.twitter_secret)

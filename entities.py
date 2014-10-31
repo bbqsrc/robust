@@ -7,7 +7,8 @@ class User:
     def public(self):
         return ['name', 'handle', 'timezone', 'bio',
                 'display_picture', 'display_picture_large',
-                'location', 'is_server_admin']
+                'location', 'is_server_admin',
+                'twitter_uid']
 
     # TODO: add 'email' as required
     @classmethod
