@@ -1,8 +1,4 @@
-function Robust(url) {
-    this.url = url;
-}
-
-Robust.prototype = {
+Robust = {
     setPref: function(key, value) {
         try {
             localStorage[key] = JSON.stringify(value);
@@ -18,21 +14,9 @@ Robust.prototype = {
         }
     },
 
-    connect: function(callback) {
-        var self = this;
-
-        this.ws = new WebSocket(this.url);
-        this.ws.onopen = function() {
-            callback.call(self);
-        };
-        this.ws.onmessage = function(msg) {
-            self.onReceiveMessage.call(self, msg.data);
-        };
-    },
-
     sendMessage: function(msg) {
         console.log("-> " + JSON.stringify(msg));
-        this.ws.send(JSON.stringify(msg) + "\n");
+        this.send(JSON.stringify(msg) + "\n");
     },
 
     authenticate: function(mode, key, secret) {
@@ -57,6 +41,11 @@ Robust.prototype = {
         }
 
         console.log("<- " + data);
+
+        this.fire('robust-command', command);
+    },
+
+    handleCommand: function(command) {
 
         switch (command.type) {
             case "auth":
@@ -105,7 +94,7 @@ Robust.prototype = {
     handleMessage: function(command) {
          this.appendMessage('[' + (new Date(command.ts)).toISOString() + 
                             '] [@' + command.from.handle +
-                            '] ' + command.body + '\n');
+                            '] ' + command.body);
     },
 
     handleBacklog: function(command) {
@@ -123,10 +112,11 @@ Robust.prototype = {
     },
 
     appendMessage: function(msg) {
-        document.getElementById('output').innerHTML += msg.trim() + '\n';
+    
     }
 }
 
+/*
 var client = new Robust("ws://robust.brendan.so/ws");
 
 client.connect(function() {
@@ -138,4 +128,4 @@ client.connect(function() {
         client.authenticate('twitter');
     }
 });
-
+*/
