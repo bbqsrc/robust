@@ -5,7 +5,7 @@ import json
 class User:
     @classmethod
     def public(self):
-        return ['name', 'handle', 'timezone', 'bio',
+        return ['id', 'name', 'handle', 'timezone', 'bio',
                 'display_picture', 'display_picture_large',
                 'location', 'is_server_admin',
                 'twitter_uid']
@@ -64,9 +64,16 @@ class User:
         if not self._authorised:
             o = {}
             for p in self.public():
-                o[p] = self._data[p]
+                if p == 'id':
+                    o[p] = self._data['_id'].hex
+                else:
+                    o[p] = self._data[p]
             return o
-        return self._data.copy()
+        else:
+            o = self._data.copy()
+            o['id'] = o['_id'].hex
+            del o['_id']
+            return o
 
     @classmethod
     def create(cls, collection, obj):

@@ -3,6 +3,21 @@ function Robust(url) {
 }
 
 Robust.prototype = {
+    setPref: function(key, value) {
+        try {
+            localStorage[key] = JSON.stringify(value);
+        } catch(e) {
+        }
+    },
+
+    getPref: function(key) {
+        try {
+            return JSON.parse(localStorage[key]);
+        } catch(e) {
+            return null;
+        }
+    },
+
     connect: function(callback) {
         var self = this;
 
@@ -65,13 +80,11 @@ Robust.prototype = {
         console.log(this);
 
         if (command.success) {
-            try {
-                localStorage.setItem("auth", JSON.stringify({
-                    mode: command.mode,
-                    key: command.data.key,
-                    secret: command.data.secret
-                }));
-            } catch (e) {}
+            this.setPref("auth", {
+                mode: command.mode,
+                key: command.data.key,
+                secret: command.data.secret
+            });
 
             if (this.loginWindowId) {
                 this.loginWindowId.close();
@@ -80,6 +93,9 @@ Robust.prototype = {
 
             this.isAuthenticated = true;
             this.appendMessage('[***] Authenticated!');
+
+            //command.user.channels
+            this.sendMessage({type: "backlog", target: "#test"});
         } else {
             this.appendMessage('[***] Challenged!');
             this.loginWindowId = window.open(command.challenge.url);
@@ -87,8 +103,9 @@ Robust.prototype = {
     },
 
     handleMessage: function(command) {
-         this.appendMessage('[@' + command.from.handle +
-            '] ' + command.body + '\n');
+         this.appendMessage('[' + (new Date(command.ts)).toISOString() + 
+                            '] [@' + command.from.handle +
+                            '] ' + command.body + '\n');
     },
 
     handleBacklog: function(command) {
@@ -113,14 +130,8 @@ Robust.prototype = {
 var client = new Robust("ws://robust.brendan.so/ws");
 
 client.connect(function() {
-    var auth;
+    var auth = client.getPref('auth');
     
-    try {
-        if (localStorage['auth'] != null) {
-            auth = JSON.parse(localStorage['auth']);
-        }
-    } catch (e) {}
-
     if (auth != null) {
         client.authenticate(auth.mode, auth.key, auth.secret);
     } else {
