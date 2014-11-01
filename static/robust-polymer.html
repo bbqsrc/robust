@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <title>Robust</title>
+
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <script src="bower_components/platform/platform.js"></script>
+  <link rel="import" href="bower_components/polymer/polymer.html"> 
+  <link rel="import" href="robust-service.html">
+
+</head>
+<body>
+  <polymer-element name='robust-app'>
+    <template>
+    <robust-service id='service' url='ws://robust.brendan.so/ws'
+    on-robust-command="{{onCommand}}"></robust-service>
+
+    <pre id='output' style="width: 100%; border: 1px solid black;"></pre>
+    </template>
+    <script>
+      Polymer({
+        onCommand: function(e) {
+          var command = e.detail;
+
+          if (command.type == "backlog") {
+            for (var i = 0, ii = command.messages.length; i < ii; ++i) {
+              this.$.output.innerHTML += command.messages[i].body.trim() + "\n";
+            }
+            return;
+          }
+          
+          if (command.type == "message") {
+            this.$.output.innerHTML += command.body.trim() + "\n";
+            return;
+          }
+
+          this.$.service.handleCommand(command);
+        }
+      });
+    </script>
+  </polymer-element>
+
+  <robust-app></robust-app>
+</body>
+
+</html>
+
