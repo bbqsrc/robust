@@ -8,93 +8,11 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <script src="bower_components/platform/platform.js"></script>
   <link rel="import" href="bower_components/polymer/polymer.html"> 
-  <link rel="import" href="robust-service.html">
+  <link rel="import" href="robust-app.html"> 
 
 </head>
-<body>
-  <polymer-element name='robust-app'>
-    <template>
-    <robust-service id='service' url='ws://robust.brendan.so/ws'
-    on-robust-command="{{onCommand}}"></robust-service>
-
-    <ol id='output' style="width: 100%; height: 600px; border: 1px solid black; list-style: none; font-family: monospace; overflow: auto">
-      <template repeat="{{message in messages[channel]}}">
-        <li>[{{message.ts}}] [{{message.from.handle}}] {{message.body}}</li>
-      </template>
-    </ol>
-
-    <input type='text' id='input' on-keypress="{{onInputKeypress}}" style='width: 100%; border: 1px solid black;'>
-    </template>
-    <script>
-      Polymer({
-        created: function() {
-          this.messages = {};
-          this.channel = "#test";
-        },
-
-        onInputKeypress: function(e) {
-          if (e.keyCode == 13) {
-            e.preventDefault();
-            this.$.service.sendMessage({
-                type: "message",
-                body: this.$.input.value,
-                target: this.channel
-            });
-            this.$.input.value = "";
-          }
-        },
-
-        insertMessage: function(message) {
-          if (!this.messages[this.channel]) {
-            this.messages[this.channel] = []
-          }
-
-          this.messages[this.channel].push(message);
-          this.messages[this.channel].sort(function(a, b) {
-            if (a.ts < b.ts) return -1;
-            if (a.ts > b.ts) return 1;
-            return 0;
-          });
-        },
-
-        insertMessages: function(messages) {
-          if (!this.messages[this.channel]) {
-            this.messages[this.channel] = []
-          }
-
-          this.messages[this.channel] = this.messages[this.channel].concat(messages);
-
-          this.messages[this.channel].sort(function(a, b) {
-            if (a.ts < b.ts) return -1;
-            if (a.ts > b.ts) return 1;
-            return 0;
-          });
-        },
-
-        onCommand: function(e) {
-          var command = e.detail;
-
-          if (command.type == "backlog") {
-            this.insertMessages(command.messages);
-            return;
-          }
-          
-          if (command.type == "message") {
-            this.insertMessage(command);
-            return;
-          }
-
-          if (command.type == "auth") {
-
-          }
-
-          this.$.service.handleCommand(command);
-        }
-      });
-    </script>
-  </polymer-element>
-
-  <robust-app></robust-app>
+<body fullbleed vertical layout unresolved>
+  <robust-app layout vertical fit url='ws://robust.brendan.so/ws'></robust-app>
 </body>
 
 </html>
