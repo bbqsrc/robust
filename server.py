@@ -139,7 +139,7 @@ class Properties:
 
 
 class RobustWebSocket(tornado.websocket.WebSocketHandler):
-    def check_origin(self):
+    def check_origin(self, origin):
         return True
 
     def open(self):
