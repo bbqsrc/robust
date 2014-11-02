@@ -1,5 +1,5 @@
 Robust = {
-    maxTS: 0;
+    maxTS: 0,
 
     setPref: function(key, value) {
         try {
