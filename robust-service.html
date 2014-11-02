@@ -6,6 +6,7 @@
     <robust-websocket id='websocket'
       auto url="{{url}}"
       on-robust-open="{{onOpen}}"
+      on-robust-close="{{onClose}}"
       on-robust-message="{{onMessage}}"
       ></robust-websocket>
   </template>
@@ -27,6 +28,11 @@
         } else {
           this.authenticate('twitter');
         }
+      },
+
+      onClose: function() {
+        console.log("Closed; reconnecting.");
+        this.$.websocket.connect();
       },
 
       onMessage: function(e) {
