@@ -1,4 +1,6 @@
 Robust = {
+    maxTS: 0;
+
     setPref: function(key, value) {
         try {
             localStorage[key] = JSON.stringify(value);
@@ -83,8 +85,10 @@ Robust = {
             this.isAuthenticated = true;
             this.appendMessage('[***] Authenticated!');
 
+            var self = this;
+
             //command.user.channels
-            this.sendMessage({type: "backlog", target: "#test"});
+            this.sendMessage({type: "backlog", fromDate: self.maxTS, target: "#test"});
         } else {
             this.appendMessage('[***] Challenged!');
             this.loginWindowId = window.open(command.challenge.url);
@@ -92,7 +96,9 @@ Robust = {
     },
 
     handleMessage: function(command) {
-         this.appendMessage('[' + (new Date(command.ts)).toISOString() + 
+        if (command.ts > this.maxTS) this.maxTS = command.ts;
+
+        this.appendMessage('[' + (new Date(command.ts)).toISOString() + 
                             '] [@' + command.from.handle +
                             '] ' + command.body);
     },
