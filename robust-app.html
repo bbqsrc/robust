@@ -21,9 +21,8 @@
         var self = this;
 
         setInterval(function() {
-          console.log("pinging");
           self.$.service.sendMessage({type: "ping"});
-        }, 20000);
+        }, 60000);
       },
 
       updateOutput: function() {
