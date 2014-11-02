@@ -139,6 +139,9 @@ class Properties:
 
 
 class RobustWebSocket(tornado.websocket.WebSocketHandler):
+    def check_origin(self):
+        return True
+
     def open(self):
         self.id = uuid.uuid4().hex
         self._buf = BytesIO()
