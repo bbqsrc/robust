@@ -13,13 +13,14 @@ class User:
     # TODO: add 'email' as required
     @classmethod
     def required(cls):
-        return ['name', 'handle', 'timezone']
+        return ['name', 'handle']
 
     @classmethod
     def defaults(cls):
         return {
             "location": "",
             "bio": "",
+            "timezone": 0,
             "display_picture": None,
             "display_picture_large": None,
             "twitter_uid": None,
@@ -114,7 +115,7 @@ class User:
     @classmethod
     def create_from_twitter(cls, collection, user_obj):
         user_id = user_obj['id_str']
-        timezone = user_obj['utc_offset']
+        timezone = user_obj.get('utc_offset', 0)
 
         handle = user_obj['screen_name']
         name = user_obj['name']

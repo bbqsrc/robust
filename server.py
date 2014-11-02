@@ -222,7 +222,7 @@ class RobustWebSocket(tornado.websocket.WebSocketHandler):
     
     def _format_log(self, words):
         #peername = "%s:%s" % self.transport.get_extra_info('peername')
-        return "%s (%s)" % (words, "STUB")
+        return "%s (%s)" % (words, self.request.remote_ip)
 
 
 class TwitterLoginHandler(RequestHandler,
