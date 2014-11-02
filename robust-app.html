@@ -23,7 +23,7 @@
         setInterval(function() {
           console.log("pinging");
           self.$.service.sendMessage({type: "ping"});
-        }, 10000);
+        }, 20000);
       },
 
       updateOutput: function() {
@@ -62,7 +62,7 @@
         });
 
         var len = this.messages[this.channel].length;
-        this.maxTS = this.messages[this.channel][len-1].ts;
+        this.$.service.maxTS = this.messages[this.channel][len-1].ts;
       },
 
       insertMessages: function(messages) {
@@ -79,7 +79,7 @@
         });
         
         var len = this.messages[this.channel].length;
-        this.maxTS = this.messages[this.channel][len-1].ts;
+        this.$.service.maxTS = this.messages[this.channel][len-1].ts;
       },
 
       onCommand: function(e) {
