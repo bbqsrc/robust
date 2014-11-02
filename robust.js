@@ -88,7 +88,7 @@ Robust = {
             var self = this;
 
             //command.user.channels
-            this.sendMessage({type: "backlog", fromDate: self.maxTS, target: "#test"});
+            this.sendMessage({type: "backlog", from_date: self.maxTS, target: "#test"});
         } else {
             this.appendMessage('[***] Challenged!');
             this.loginWindowId = window.open(command.challenge.url);
