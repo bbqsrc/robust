@@ -115,7 +115,7 @@ class User:
     @classmethod
     def create_from_twitter(cls, collection, user_obj):
         user_id = user_obj['id_str']
-        timezone = user_obj.get('utc_offset', 0)
+        timezone = user_obj['utc_offset'] or 0
 
         handle = user_obj['screen_name']
         name = user_obj['name']
