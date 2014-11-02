@@ -18,6 +18,12 @@
       created: function() {
         this.messages = {};
         this.channel = "#test";
+        var self = this;
+
+        setInterval(function() {
+          console.log("pinging");
+          self.$.service.sendMessage({type: "ping"});
+        }, 10000);
       },
 
       updateOutput: function() {
