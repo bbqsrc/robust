@@ -43,7 +43,7 @@
         }
       },
 
-      insertMessage: function(message) {
+    insertMessage: function(message) {
         if (!this.messages[this.channel]) {
           this.messages[this.channel] = []
         }
@@ -54,6 +54,9 @@
           if (a.ts > b.ts) return 1;
           return 0;
         });
+
+        var len = this.messages[this.channel].length;
+        this.maxTS = this.messages[this.channel][len-1].ts;
       },
 
       insertMessages: function(messages) {
@@ -68,6 +71,9 @@
           if (a.ts > b.ts) return 1;
           return 0;
         });
+        
+        var len = this.messages[this.channel].length;
+        this.maxTS = this.messages[this.channel][len-1].ts;
       },
 
       onCommand: function(e) {
