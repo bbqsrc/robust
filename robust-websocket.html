@@ -1,0 +1,47 @@
+<polymer-element name="robust-websocket" constructor="RobustWebSocket" 
+hidden attributes="url auto">
+<script>(function() {
+
+var ws = null;
+
+Polymer({
+  url: '',
+  auto: false,
+
+  ready: function() {
+    if (this.auto) {
+      this.connect();
+    }
+  },
+
+  connect: function() {
+    var self = this;
+
+    this.fire('robust-connecting');
+    ws = new WebSocket(this.url);
+
+    ws.onopen = function() {
+      self.fire('robust-open');
+    }
+ 
+    ws.onmessage = function(message) {
+      self.fire('robust-message', {message: message});
+    };
+
+    ws.onclose = function() {
+      self.fire('robust-close');
+    }
+  },
+
+  disconnect: function() {
+    this.fire('robust-closing');
+    ws.close();
+  },
+
+  send: function(data) {
+    ws.send(data);
+  }
+});
+
+})();</script>
+</polymer-element>
