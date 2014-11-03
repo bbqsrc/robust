@@ -191,7 +191,19 @@ class SocketMessageHandler:
 
     def part(self, obj):
         # TODO part a channel
-        pass
+        # TODO accept a list instead of a string; multi join!
+        user = self.session.get('user')
+
+        target = obj['target']
+
+        if target in user['channels']:
+            user['channels'].remove(target)
+
+        user.save()
+
+        o = obj.copy()
+        o['success'] = True
+        return o
 
     def backlog(self, obj):
         from_date = obj.get('from_date', None)
