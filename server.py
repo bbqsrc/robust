@@ -200,7 +200,8 @@ class RobustWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         self.logger.info(self._format_log("Connection lost!"))
-        del sessions[self.id]
+        if sessions.get(self.id, None):
+            del sessions[self.id]
 
     def write_json(self, data):
         out = json.dumps(data, cls=JSONEncoder, separators=(',', ':'))
@@ -356,7 +357,8 @@ class TCPServer(asyncio.Protocol):
         if self._heartbeat_handle is not None:
             self._heartbeat_handle.cancel()
         self.logger.info(self._format_log("Connection lost!"))
-        del sessions[self.id]
+        if sessions.get(self.id, None):
+            del sessions[self.id]
 
     def data_received(self, data):
         i = data.find(b'\n')
