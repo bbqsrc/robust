@@ -46,8 +46,7 @@ class Session:
         self._logger = logger
         self._msgdb = msgdb
 
-        host, port = options.mongo.split(':')
-        self._db = pymongo.MongoClient(host, int(port)).robust
+        self._db = MONGO_DB
         self._dict = {}
 
     @property
@@ -426,7 +425,7 @@ def make_app():
 
 
 def main():
-    global properties
+    global properties, MONGO_DB
 
     tornado.options.parse_command_line()
 
@@ -447,8 +446,11 @@ def main():
 
     http_host, http_port = options.http.split(':')
     tcp_host, tcp_port = options.tcp.split(':')
+    mongo_host, mongo_port = options.mongo.split(':')
+
     properties = Properties(**config.get('properties', {}))
 
+    MONGO_DB = pymongo.MongoClient(mongo_host, int(mongo_port)).robust
     logger = logging.getLogger()
 
     # Bloody asyncio
