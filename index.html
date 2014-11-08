@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Robust</title>
+    <script src="app.js"></script>
+    <style>
+      html, body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;  
+      }
+
+      #container {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 8px;
+      }
+
+      #output { 
+        flex: 1;
+        margin: 0;
+        padding: 0;
+        overflow: auto;
+        border: 1px solid black;
+        font-family: "Open Sans", sans-serif;
+        font-size: 10pt;
+      }
+
+      #output > li {
+        margin: 0;
+        padding: 0;
+      }
+ 
+      .timestamp {
+        color: #ccc;
+        margin-left: 0.2em;
+        margin-right: 0.5em;
+      }
+
+      .handle {
+        color: red;
+        margin-right: 0.5em;
+      }
+
+      #input {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 12pt;
+        font-family: "Open Sans", sans-serif;
+        border: 0;
+        background: transparent;
+        border-bottom: 2px solid #bbb;
+        padding: 0.4em 0.2em 0.1em;
+        outline: none;
+        transition: all 0.3s;
+      }
+
+      #input:focus {
+        border-bottom: 2px solid #0073ae;
+        margin-bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id='container'>
+      <robust-service id='service' url="ws://robust.brendan.so/ws" hidden></robust-service>
+      
+      <ol id='output'>Loading...</ol>
+      <input id='input' type='text'>
+    </div>
+    
+    <script>
+      Log.setLevel(LogLevel.VERBOSE);
+
+      service.addEventListener('robust-backlog', function(e) {
+          var command = e.detail;
+          if (command.target == "#test") {
+            output.innerHTML = "";
+            service.requestMessages('#test').forEach(function(item) {
+              output.appendChild(createMessageView(item));
+            }).then(function() {
+              scrollToBottom(output);
+            });
+          }
+      });
+
+      service.addEventListener('robust-message', function(e) {
+          var item = e.detail;
+          output.appendChild(createMessageView(item));
+          scrollToBottom(output);
+      });
+
+      service.addEventListener('robust-open', function(e) {
+          service.authenticate();
+      });
+
+      input.addEventListener('keypress', function(e) {
+          if (e.keyCode == 13 && this.value.length > 0) {
+              service.sendMessage({type: "message", target: "#test", body: this.value});
+              this.value = "";
+              scrollToBottom(output);
+          }
+      });
+
+      function createMessageView(command) {
+        var root = document.createElement('li');
+
+        var date = new Date(command.ts);
+        
+        var ts = document.createElement('time');
+        ts.className = "timestamp";
+        ts.setAttribute('datetime', date.toISOString());
+        ts.innerText = timeString(date);
+        root.appendChild(ts);
+
+        var handle = document.createElement('span');
+        handle.className = "handle";
+        handle.innerText = "@" + command.from.handle;
+
+        root.appendChild(handle);
+
+        var body = document.createElement('span');
+        body.className = "span";
+        body.innerText = command.body;
+        root.appendChild(body);
+
+        return root;
+      }
+
+      function scrollToBottom(node) {
+        node.scrollTop = node.scrollHeight - node.clientHeight;
+      }
+
+      function timeString(date) {
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var seconds = date.getSeconds();
+
+        return ((hours < 10 ? "0" : "") + hours + ":" +
+                (minutes < 10 ? "0" : "") + minutes + ":" +
+                (seconds < 10 ? "0" : "") + seconds);
+      }
+    </script>
+  </body>
+</html>
