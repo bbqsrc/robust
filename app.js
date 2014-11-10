@@ -1,9 +1,3 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var Deferred = (function () {
     function Deferred() {
         var _this = this;
@@ -43,6 +37,82 @@ var Deferred = (function () {
     });
     return Deferred;
 })();
+var LogLevel;
+(function (LogLevel) {
+    LogLevel[LogLevel["VERBOSE"] = 0] = "VERBOSE";
+    LogLevel[LogLevel["DEBUG"] = 1] = "DEBUG";
+    LogLevel[LogLevel["INFO"] = 2] = "INFO";
+    LogLevel[LogLevel["WARN"] = 3] = "WARN";
+    LogLevel[LogLevel["ERROR"] = 4] = "ERROR";
+})(LogLevel || (LogLevel = {}));
+;
+var Log = (function () {
+    function Log() {
+    }
+    Log.setLevel = function (level) {
+        this.logLevel = level;
+    };
+    Log.ts = function () {
+        var dt = new Date();
+        return dt.toISOString();
+    };
+    Log.format = function (level, tag) {
+        return "[" + this.ts() + "] " + level + "/" + tag + ": ";
+    };
+    Log.v = function (tag) {
+        var objs = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            objs[_i - 1] = arguments[_i];
+        }
+        if (this.logLevel <= 0 /* VERBOSE */) {
+            console.log.apply(console, [this.format("V", tag)].concat(objs));
+        }
+    };
+    Log.d = function (tag) {
+        var objs = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            objs[_i - 1] = arguments[_i];
+        }
+        if (this.logLevel <= 1 /* DEBUG */) {
+            console.log.apply(console, [this.format("D", tag)].concat(objs));
+        }
+    };
+    Log.i = function (tag) {
+        var objs = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            objs[_i - 1] = arguments[_i];
+        }
+        if (this.logLevel <= 2 /* INFO */) {
+            console.log.apply(console, [this.format("I", tag)].concat(objs));
+        }
+    };
+    Log.w = function (tag) {
+        var objs = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            objs[_i - 1] = arguments[_i];
+        }
+        if (this.logLevel <= 3 /* WARN */) {
+            console.log.apply(console, [this.format("W", tag)].concat(objs));
+        }
+    };
+    Log.e = function (tag) {
+        var objs = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            objs[_i - 1] = arguments[_i];
+        }
+        if (this.logLevel <= 4 /* ERROR */) {
+            console.log.apply(console, [this.format("E", tag)].concat(objs));
+        }
+    };
+    Log.logLevel = 1 /* DEBUG */;
+    return Log;
+})();
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var DeferredAsyncIterable = (function (_super) {
     __extends(DeferredAsyncIterable, _super);
     function DeferredAsyncIterable() {
@@ -204,84 +274,6 @@ var PromiseIDBObjectStore = (function () {
     };
     return PromiseIDBObjectStore;
 })();
-/// <reference path='promise-idb.ts'/>
-function applyMixins(derivedCtor, baseCtors) {
-    baseCtors.forEach(function (baseCtor) {
-        Object.getOwnPropertyNames(baseCtor.prototype).forEach(function (name) {
-            derivedCtor.prototype[name] = baseCtor.prototype[name];
-        });
-    });
-}
-var LogLevel;
-(function (LogLevel) {
-    LogLevel[LogLevel["VERBOSE"] = 0] = "VERBOSE";
-    LogLevel[LogLevel["DEBUG"] = 1] = "DEBUG";
-    LogLevel[LogLevel["INFO"] = 2] = "INFO";
-    LogLevel[LogLevel["WARN"] = 3] = "WARN";
-    LogLevel[LogLevel["ERROR"] = 4] = "ERROR";
-})(LogLevel || (LogLevel = {}));
-;
-var Log = (function () {
-    function Log() {
-    }
-    Log.setLevel = function (level) {
-        this.logLevel = level;
-    };
-    Log.ts = function () {
-        var dt = new Date();
-        return dt.toISOString();
-    };
-    Log.format = function (level, tag) {
-        return "[" + this.ts() + "] " + level + "/" + tag + ": ";
-    };
-    Log.v = function (tag) {
-        var objs = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            objs[_i - 1] = arguments[_i];
-        }
-        if (this.logLevel <= 0 /* VERBOSE */) {
-            console.log.apply(console, [this.format("V", tag)].concat(objs));
-        }
-    };
-    Log.d = function (tag) {
-        var objs = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            objs[_i - 1] = arguments[_i];
-        }
-        if (this.logLevel <= 1 /* DEBUG */) {
-            console.log.apply(console, [this.format("D", tag)].concat(objs));
-        }
-    };
-    Log.i = function (tag) {
-        var objs = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            objs[_i - 1] = arguments[_i];
-        }
-        if (this.logLevel <= 2 /* INFO */) {
-            console.log.apply(console, [this.format("I", tag)].concat(objs));
-        }
-    };
-    Log.w = function (tag) {
-        var objs = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            objs[_i - 1] = arguments[_i];
-        }
-        if (this.logLevel <= 3 /* WARN */) {
-            console.log.apply(console, [this.format("W", tag)].concat(objs));
-        }
-    };
-    Log.e = function (tag) {
-        var objs = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            objs[_i - 1] = arguments[_i];
-        }
-        if (this.logLevel <= 4 /* ERROR */) {
-            console.log.apply(console, [this.format("E", tag)].concat(objs));
-        }
-    };
-    Log.logLevel = 1 /* DEBUG */;
-    return Log;
-})();
 var Preferences = (function () {
     function Preferences() {
     }
@@ -406,11 +398,13 @@ var RobustService = (function (_super) {
         this.channels = {};
     }
     RobustService.prototype.initDB = function () {
-        return PromiseIndexedDB.open("robust", 1, function (db) {
+        return PromiseIndexedDB.open("robust", 2, function (db) {
             if (!db.objectStoreNames.contains("messages")) {
                 Log.i(this.TAG, "creating object store 'messages'.");
                 var objStore = db.createObjectStore("messages", { keyPath: "id" });
                 objStore.createIndex("ts", "ts");
+                objStore.createIndex("target", "target");
+                objStore.createIndex("ts-target", ["ts", "target"]);
             }
         }.bind(this)).then(function (result) {
             this.db = result;
@@ -435,7 +429,7 @@ var RobustService = (function (_super) {
     };
     RobustService.prototype.requestMessages = function (target) {
         var objStore = this.getMessagesObjectStore();
-        return objStore.index("ts").openCursor(null, "next");
+        return objStore.index("target").openCursor(IDBKeyRange.only(target), "next");
     };
     RobustService.prototype.onConnecting = function (e) {
         Log.i(this.TAG, "Connection connecting!");
@@ -557,6 +551,7 @@ var RobustService = (function (_super) {
         else if (command.challenge && command.challenge.url) {
             this.window = window.open(command.challenge.url);
         }
+        this.fireEvent("robust-auth", command);
     };
     RobustService.prototype.onMessageCommand = function (command) {
         Log.d(this.TAG, "onMessageCommand");
@@ -565,6 +560,14 @@ var RobustService = (function (_super) {
                 this.fireEvent("robust-message", command);
             }.bind(this));
         }
+    };
+    RobustService.prototype.onJoinCommand = function (command) {
+        Log.d(this.TAG, "onJoinCommand");
+        this.fireEvent("robust-join", command);
+    };
+    RobustService.prototype.onPartCommand = function (command) {
+        Log.d(this.TAG, "onPartCommand");
+        this.fireEvent("robust-part", command);
     };
     RobustService.prototype.createdCallback = function () {
         RobustService.call(this);
@@ -587,10 +590,155 @@ var RobustService = (function (_super) {
             this.url = newVal;
         }
     };
+    RobustService.ELEMENT_CLASS = "RobustServiceElement";
+    RobustService.ELEMENT_TAG = "robust-service";
     return RobustService;
 })(WebSocketWrapper);
-function RobustElement() {
+generateElementWrapper(RobustService);
+function generateElementWrapper(classObject) {
+    var wrapper = new Function(classObject.ELEMENT_CLASS);
+    wrapper.prototype = Object.create(HTMLElement.prototype);
+    wrapper.ELEMENT_CLASS = classObject.ELEMENT_CLASS;
+    var cur = classObject.prototype;
+    var parent = [cur];
+    while ((cur = Object.getPrototypeOf(cur)) != Object.prototype) {
+        parent.unshift(cur);
+    }
+    Log.d("generateElementWrapper", "mixins:", parent);
+    parent.forEach(function (proto) {
+        Object.getOwnPropertyNames(proto).forEach(function (name) {
+            wrapper.prototype[name] = proto[name];
+        });
+    });
+    document.registerElement(classObject.ELEMENT_TAG, {
+        prototype: wrapper.prototype
+    });
 }
-RobustElement.prototype = Object.create(HTMLElement.prototype);
-applyMixins(RobustElement, [WebSocketWrapper, RobustService]);
-document.registerElement("robust-service", { prototype: RobustElement.prototype });
+function convertUTCToLocal(instantUTC) {
+    // Minutes * 60 (seconds) * 1000 (ms)
+    var offset = -new Date().getTimezoneOffset() * 60 * 1000;
+    return instantUTC + offset;
+}
+var View = (function () {
+    function View() {
+        this.shadowRoot = this.createShadowRoot();
+        this.$ = Object.create(null);
+        var tmpl = this.template();
+        if (tmpl && tmpl.content) {
+            this.shadowRoot.appendChild(tmpl.content);
+            var nodes = this.shadowRoot.querySelectorAll("[id]");
+            for (var i = 0, ii = nodes.length; i < ii; ++i) {
+                this.$[nodes[i].id] = nodes[i];
+            }
+        }
+    }
+    View.prototype.bindViewTo = function (element) {
+        this.boundElement = element;
+        this.boundFunctions = Object.create(null);
+        Object.keys(this.events).forEach(function (key) {
+            Log.d("View", "binding event: " + key);
+            var unbound = this[this.events[key]];
+            if (unbound == null) {
+                return;
+            }
+            var bound = unbound.bind(this);
+            this.boundElement.addEventListener(key, bound, false);
+            this.boundFunctions[key] = bound;
+        }, this);
+    };
+    View.prototype.unbindView = function () {
+        if (!this.boundElement) {
+            return;
+        }
+        Object.keys(this.events).forEach(function (key) {
+            this.boundElement.removeEventListener(key, this.boundFunctions[key], false);
+        }, this);
+        this.boundElement = undefined;
+        this.boundFunctions = undefined;
+    };
+    View.prototype.template = function () {
+        return document.getElementById(this.nodeName.toLowerCase());
+    };
+    View.prototype.createdCallback = function () {
+    };
+    View.prototype.attachedCallback = function () {
+    };
+    View.prototype.detachedCallback = function () {
+    };
+    View.prototype.attributeChangedCallback = function (attr, oldVal, newVal) {
+    };
+    return View;
+})();
+var ChannelSidebarView = (function (_super) {
+    __extends(ChannelSidebarView, _super);
+    function ChannelSidebarView() {
+        _super.call(this);
+        this.TAG = "ChannelSidebarView";
+        this.channels = [];
+        this.events = {
+            'robust-auth': 'onAuth',
+            'robust-join': 'onJoin',
+            'robust-part': 'onPart'
+        };
+    }
+    ChannelSidebarView.prototype.onAuth = function (e) {
+        var command = e.detail;
+        if (command.user != null) {
+            this.channels = command.user.channels;
+        }
+        this.render();
+    };
+    ChannelSidebarView.prototype.onJoin = function (e) {
+        var command = e.detail;
+        this.channels.push(command.target);
+        this.render();
+    };
+    ChannelSidebarView.prototype.onPart = function (e) {
+        var command = e.detail;
+        var i = this.channels.indexOf(command.target);
+        if (i != -1) {
+            this.channels.splice(i, 1);
+        }
+        this.render();
+    };
+    ChannelSidebarView.prototype.render = function () {
+        var _this = this;
+        while (this.$.channels.lastChild) {
+            this.$.channels.removeChild(this.$.channels.lastChild);
+        }
+        this.channels.forEach(function (channel) {
+            var node = document.createElement('li');
+            node.innerText = channel;
+            _this.$.channels.appendChild(node);
+        });
+    };
+    ChannelSidebarView.prototype.attemptBinding = function () {
+        if (this.serviceId) {
+            var node = document.getElementById(this.serviceId);
+            if (node != null) {
+                this.bindViewTo(node);
+            }
+        }
+    };
+    ChannelSidebarView.prototype.createdCallback = function () {
+        ChannelSidebarView.call(this);
+    };
+    ChannelSidebarView.prototype.attachedCallback = function () {
+        this.serviceId = this.getAttribute("service");
+        this.attemptBinding();
+    };
+    ChannelSidebarView.prototype.detachedCallback = function () {
+        this.unbindView();
+    };
+    ChannelSidebarView.prototype.attributeChangedCallback = function (attr, oldVal, newVal) {
+        if (attr == "service") {
+            this.unbindView();
+            this.serviceId = newVal;
+            this.attemptBinding();
+        }
+    };
+    ChannelSidebarView.ELEMENT_CLASS = "RobustChannelSidebarView";
+    ChannelSidebarView.ELEMENT_TAG = "robust-channel-sidebar";
+    return ChannelSidebarView;
+})(View);
+generateElementWrapper(ChannelSidebarView);

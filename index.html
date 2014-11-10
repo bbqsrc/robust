@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Robust</title>
+    <title>Robust TS</title>
     <script src="app.js"></script>
     <style>
       html, body {
@@ -12,7 +12,7 @@
 
       #container {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         position: absolute;
         top: 0;
         right: 0;
@@ -21,12 +21,22 @@
         padding: 8px;
       }
 
+      #sidebar {
+        width: 10em;
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
       #output { 
         flex: 1;
         margin: 0;
         padding: 0;
         overflow: auto;
-        border: 1px solid black;
+        border: 1px solid #ddd;
         font-family: "Open Sans", sans-serif;
         font-size: 10pt;
       }
@@ -69,11 +79,19 @@
   <body>
     <div id='container'>
       <robust-service id='service' url="ws://robust.brendan.so/ws" hidden></robust-service>
-      
-      <ol id='output'>Loading...</ol>
-      <input id='input' type='text'>
+
+      <robust-channel-sidebar id='sidebar' service="service"></robust-channel-sidebar>
+
+      <main>
+        <ol id='output'>Loading...</ol>
+        <input id='input' type='text'>
+      </main>
     </div>
-    
+
+    <template id="robust-channel-sidebar">
+      <ul id='channels' class="channels"></ul>
+    </template>
+
     <script>
       Log.setLevel(LogLevel.VERBOSE);
 
@@ -110,7 +128,8 @@
       function createMessageView(command) {
         var root = document.createElement('li');
 
-        var date = new Date(command.ts);
+        console.log(command.ts);
+        var date = new Date(convertUTCToLocal(command.ts));
         
         var ts = document.createElement('time');
         ts.className = "timestamp";

@@ -1,62 +1,3 @@
-/// <reference path='promise-idb.ts'/>
-
-function applyMixins(derivedCtor: any, baseCtors: any[]) {
-    baseCtors.forEach(baseCtor => {
-        Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
-            derivedCtor.prototype[name] = baseCtor.prototype[name];
-        })
-    });
-}
-
-enum LogLevel { VERBOSE, DEBUG, INFO, WARN, ERROR };
-
-class Log {
-    private static logLevel: LogLevel = LogLevel.DEBUG;
-
-    static setLevel(level: LogLevel) {
-        this.logLevel = level;
-    }
-
-    private static ts(): string {
-        var dt = new Date();
-        return dt.toISOString();
-    }
-
-    private static format(level: string, tag: string): string {
-        return "[" + this.ts() + "] " + level + "/" + tag + ": ";
-    }
-
-    static v(tag: string, ...objs: any[]) {
-        if (this.logLevel <= LogLevel.VERBOSE) {
-            console.log.apply(console, [this.format("V", tag)].concat(objs));
-        }
-    }
-
-    static d(tag: string, ...objs: any[]) {
-        if (this.logLevel <= LogLevel.DEBUG) {
-            console.log.apply(console, [this.format("D", tag)].concat(objs));
-        }
-    }
-
-    static i(tag: string, ...objs: any[]) {
-        if (this.logLevel <= LogLevel.INFO) {
-            console.log.apply(console, [this.format("I", tag)].concat(objs));
-        }
-    }
-
-    static w(tag: string, ...objs: any[]) {
-        if (this.logLevel <= LogLevel.WARN) {
-            console.log.apply(console, [this.format("W", tag)].concat(objs));
-        }
-    }
-
-    static e(tag: string, ...objs: any[]) {
-        if (this.logLevel <= LogLevel.ERROR) {
-            console.log.apply(console, [this.format("E", tag)].concat(objs));
-        }
-    }
-}
-
 class Preferences {
     private static setPreference(key: string, value: any) {
         try {
@@ -89,56 +30,6 @@ class Preferences {
     static getAuthenticator() {
         return this.getPreference("auth");
     }
-}
-
-interface RobustUser {
-    id: string;
-    handle: string;
-    name: string;
-    ts: number;
-    channels: string[];
-}
-
-interface AuthCommand {
-    type: string;
-    mode: string;
-    challenge?: {
-        secret?: string;
-        key?: string;
-        url?: string;
-    };
-    data?: {
-        key?: string;
-        secret?: string;
-    };
-    success?: boolean;
-    user?: RobustUser;
-}
-
-interface BacklogCommand {
-    type: string;
-    messages: MessageCommand[];
-    target: string;
-    fromDate: number;
-    toDate: number;
-    count: number;
-}
-
-interface MessageCommand {
-    type: string;
-    id: string;
-    body: string;
-    ts: number;
-    target: string;
-    from: RobustUser;
-}
-
-declare function setImmediate(handler: any, ...args: any[]): number;
-declare function clearImmediate(handle: number): void;
-
-interface Channel {
-    name: string;
-    messages: MessageCommand[];
 }
 
 class WebSocketWrapper {
@@ -243,7 +134,10 @@ class WebSocketWrapper {
     onError(e: Event) {}
 }
 
-class RobustService extends WebSocketWrapper implements CustomElement, EventTarget {
+class RobustService extends WebSocketWrapper implements CustomElement {
+    static ELEMENT_CLASS = "RobustServiceElement";
+    static ELEMENT_TAG = "robust-service";
+
     private TAG = "RobustService";
 
     private window: Window;
@@ -260,11 +154,14 @@ class RobustService extends WebSocketWrapper implements CustomElement, EventTarg
     }
 
     private initDB(): Promise {
-        return PromiseIndexedDB.open("robust", 1, function(db) {
+        return PromiseIndexedDB.open("robust", 2, function(db) {
             if (!db.objectStoreNames.contains("messages")) {
                 Log.i(this.TAG, "creating object store 'messages'.");
-                var objStore = db.createObjectStore("messages", { keyPath: "id" });
+                var objStore: any = db.createObjectStore("messages", { keyPath: "id" });
                 objStore.createIndex("ts", "ts");
+                objStore.createIndex("target", "target");
+                objStore.createIndex("ts-target", ["ts", "target"]);
+
             }
         }.bind(this)).then(function(result) {
             this.db = result;
@@ -292,7 +189,7 @@ class RobustService extends WebSocketWrapper implements CustomElement, EventTarg
 
     requestMessages(target: string): AsyncIterable {
         var objStore = this.getMessagesObjectStore();
-        return objStore.index("ts").openCursor(null, "next");
+        return objStore.index("target").openCursor(IDBKeyRange.only(target), "next");
     }
 
     onConnecting(e: Event) {
@@ -448,6 +345,8 @@ class RobustService extends WebSocketWrapper implements CustomElement, EventTarg
         } else if (command.challenge && command.challenge.url) {
             this.window = window.open(command.challenge.url);
         }
+
+        this.fireEvent("robust-auth", command);
     }
 
     onMessageCommand(command: MessageCommand) {
@@ -458,6 +357,18 @@ class RobustService extends WebSocketWrapper implements CustomElement, EventTarg
                 this.fireEvent("robust-message", command);
             }.bind(this));
         }
+    }
+
+    onJoinCommand(command: JoinCommand) {
+        Log.d(this.TAG, "onJoinCommand");
+
+        this.fireEvent("robust-join", command);
+    }
+
+    onPartCommand(command: PartCommand) {
+        Log.d(this.TAG, "onPartCommand");
+
+        this.fireEvent("robust-part", command);
     }
 
     createdCallback() {
@@ -494,24 +405,4 @@ class RobustService extends WebSocketWrapper implements CustomElement, EventTarg
     dispatchEvent: (evt:Event) => boolean;
     getAttribute: (attr:string) => string;
 }
-
-interface CustomElement {
-    createdCallback();
-    attachedCallback();
-    detachedCallback();
-    attributeChangedCallback(attr: string, oldVal: any, newVal: any);
-}
-
-interface HTMLElement {
-    call(x: any): void;
-}
-
-function RobustElement() {}
-RobustElement.prototype = Object.create(HTMLElement.prototype);
-applyMixins(RobustElement, [WebSocketWrapper, RobustService]);
-
-interface Document {
-    registerElement(el: string, foo: any);
-}
-
-(<Document>document).registerElement("robust-service", { prototype: RobustElement.prototype });
+generateElementWrapper(RobustService);
